@@ -50,8 +50,26 @@ app.get('/api/artists', function(request, response) {
             filename: 'chinook.db'//can this var name be abstracted out?
         }
     });
-    //create query, display results
-    connection
+    if (request.query.filter) {
+        connection
+        .select()
+        .from('artists')
+        .where('Name', request.query.filter)
+        .then((artists) => {
+            artists = artists.map(artist => {
+                var formattedArtist = {};
+                formattedArtist['id'] = artist['ArtistId'];
+                formattedArtist['name'] = artist['Name'];
+                return formattedArtist;
+            });
+            response.json(artists);
+        })
+        .catch(() => {//return all artists
+
+        });
+    }
+    else {
+        connection
         .select()
         .from('artists')
         .then((artists) => {
@@ -65,6 +83,7 @@ app.get('/api/artists', function(request, response) {
             });
             response.json(artists);
         });
+    }
 });
 
 
