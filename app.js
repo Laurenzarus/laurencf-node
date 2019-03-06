@@ -52,29 +52,27 @@ app.get('/api/artists', function(request, response) {
     });
     if (request.query.filter) {
         connection
-        .select()
-        .from('artists')
-        .where('Name', request.query.filter)
-        .then((artists) => {
-            artists = artists.map(artist => {
-                var formattedArtist = {};
-                formattedArtist['id'] = artist['ArtistId'];
-                formattedArtist['name'] = artist['Name'];
-                return formattedArtist;
+            .select()
+            .from('artists')
+            .whereRaw('Lower(Name) LIKE ?', ['%' + request.query.filter.toLowerCase() + '%'])
+            .then((artists) => {
+                artists = artists.map(artist => {
+                    var formattedArtist = {};
+                    formattedArtist['id'] = artist['ArtistId'];
+                    formattedArtist['name'] = artist['Name'];
+                    return formattedArtist;
+                });
+                response.json(artists);
+            })
+            .catch(() => {//return all artists
+                
             });
-            response.json(artists);
-        })
-        .catch(() => {//return all artists
-
-        });
     }
     else {
         connection
         .select()
         .from('artists')
         .then((artists) => {
-            // JSON.stringify(artists, null, 4);
-            // JSON.stringify(artists, null, "\t");
             artists = artists.map(artist => {
                 var formattedArtist = {};
                 formattedArtist['id'] = artist['ArtistId'];
