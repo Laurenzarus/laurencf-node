@@ -1,7 +1,19 @@
 let express = require('express');
 let knex = require('knex');
-
+let WebSocket = require('ws');
+let wss = new WebSocket.Server({port: process.env.PORT || 8080});
 let app = express();
+
+wss.on('connection', (ws) => {
+  ws.on('message', (message) => {
+    console.log(`Received: ${message}`);
+
+    wss.clients.forEach((client) => {
+      client.send(message);
+    });
+
+  });
+});
 
 app.get('/api/genres', function(request, response) {
   let connection = knex({
