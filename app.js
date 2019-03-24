@@ -1,5 +1,7 @@
 let express = require('express');
 let knex = require('knex');
+// const Sequelize = require('sequelize');
+const Playlist = require('./models/playlist');
 let WebSocket = require('ws');
 let wss = new WebSocket.Server({port: process.env.PORT || 8080});
 let app = express();
@@ -96,5 +98,23 @@ app.get('/api/artists', function(request, response) {
     }
 });
 
+app.get('/api/playlists', function(request, response) {
+  Playlist.findAll().then((playlists) => {
+    response.json(playlists);
+  });
+});
+
+app.get('/api/playlists/:id', function(request, response) {
+  let {id} = request.params;
+
+  Playlist.findByPk(id).then((playlist) => {
+    if (playlist) {
+      response.json(playlist);
+    }
+    else {
+      response.status(404).send();
+    }
+  });
+});
 
 app.listen(process.env.PORT || 8000);

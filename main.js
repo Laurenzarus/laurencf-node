@@ -1,4 +1,4 @@
-let connection = new WebSocket('ws://laurencf-node.herokuapp.com');
+let connection = new WebSocket('ws://localhost:8080');
 
 connection.onopen = () => {
   console.log('connected from the frontend');
