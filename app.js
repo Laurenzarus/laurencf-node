@@ -1,10 +1,15 @@
 let express = require('express');
 let knex = require('knex');
-// const Sequelize = require('sequelize');
+const bodyParser = require('body-parser');
+const Sequelize = require('sequelize');
 const Playlist = require('./models/playlist');
+const {Op} = Sequelize;
+const Track = require('./models/track');
 let WebSocket = require('ws');
 let wss = new WebSocket.Server({port: process.env.PORT || 8080});
 let app = express();
+
+app.use(bodyParser.json);
 
 wss.on('connection', (ws) => {
   ws.on('message', (message) => {
@@ -99,14 +104,27 @@ app.get('/api/artists', function(request, response) {
 });
 
 app.get('/api/playlists', function(request, response) {
-  Playlist.findAll().then((playlists) => {
+
+  let filter = {};
+  let {q} = request.query;
+  if (q) {
+    filter = {
+      where: {
+        name: {
+          [Op.like]: `${q}%`
+        }
+      }
+    }
+  }
+  Playlist.findAll(filter).then((playlists) => {
     response.json(playlists);
   });
 });
 
 app.get('/api/playlists/:id', function(request, response) {
+  
   let {id} = request.params;
-
+  
   Playlist.findByPk(id).then((playlist) => {
     if (playlist) {
       response.json(playlist);
@@ -117,4 +135,26 @@ app.get('/api/playlists/:id', function(request, response) {
   });
 });
 
+app.get('/api/tracks', function(request, response) {
+  Track.findAll().then((tracks) => {
+    response.json(tracks);
+  })
+})
+
+app.post('/api/tracks', function(request, response) {
+  Track.create({
+    name: request.body.name
+  }).then((artist) => {
+    response.json(artist);
+  }, (errors) => {
+    response.status(422).json({
+      errors: validation.errors.map((error) => {
+        return {
+          attribute: error.path,
+          message: error.message
+        }
+      })
+    });
+  });
+})
 app.listen(process.env.PORT || 8000);
