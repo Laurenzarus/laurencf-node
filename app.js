@@ -2,9 +2,13 @@ let express = require('express');
 let knex = require('knex');
 const bodyParser = require('body-parser');
 const Sequelize = require('sequelize');
+
 const Playlist = require('./models/playlist');
-const {Op} = Sequelize;
 const Track = require('./models/track');
+const Artist = require('./models/artist');
+const Album = require('./models/album');
+
+const {Op} = Sequelize;
 let WebSocket = require('ws');
 let wss = new WebSocket.Server({port: process.env.PORT || 8080});
 let app = express();
@@ -146,7 +150,7 @@ app.post('/api/tracks', function(request, response) {
     name: request.body.name
   }).then((artist) => {
     response.json(artist);
-  }, (errors) => {
+  }, (validation) => {
     response.status(422).json({
       errors: validation.errors.map((error) => {
         return {
