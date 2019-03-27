@@ -9,22 +9,22 @@ const Artist = require('./models/artist');
 const Album = require('./models/album');
 
 const {Op} = Sequelize;
-let WebSocket = require('ws');
-let wss = new WebSocket.Server({port: process.env.PORT || 8080});
+// let WebSocket = require('ws');
+// let wss = new WebSocket.Server({port: process.env.PORT || 8080});
 const app = express();
 
 app.use(bodyParser.json());
 
-wss.on('connection', (ws) => {
-  ws.on('message', (message) => {
-    console.log(`Received: ${message}`);
+// wss.on('connection', (ws) => {
+//   ws.on('message', (message) => {
+//     console.log(`Received: ${message}`);
 
-    wss.clients.forEach((client) => {
-      client.send(message);
-    });
+//     wss.clients.forEach((client) => {
+//       client.send(message);
+//     });
 
-  });
-});
+//   });
+// });
 
 Artist.hasMany(Album, {
   foreignKey: 'ArtistId'
@@ -227,5 +227,4 @@ app.patch('/api/tracks/:id', function(request, response) {
   });
 
 });
-// app.listen(8000);
 app.listen(process.env.PORT || 8000);
