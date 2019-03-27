@@ -11,9 +11,9 @@ const Album = require('./models/album');
 const {Op} = Sequelize;
 let WebSocket = require('ws');
 let wss = new WebSocket.Server({port: process.env.PORT || 8080});
-let app = express();
+const app = express();
 
-app.use(bodyParser.json);
+app.use(bodyParser.json());
 
 wss.on('connection', (ws) => {
   ws.on('message', (message) => {
@@ -161,4 +161,5 @@ app.post('/api/tracks', function(request, response) {
     });
   });
 })
+// app.listen(8000);
 app.listen(process.env.PORT || 8000);
