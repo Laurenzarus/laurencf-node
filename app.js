@@ -26,6 +26,26 @@ wss.on('connection', (ws) => {
   });
 });
 
+Artist.hasMany(Album, {
+  foreignKey: 'ArtistId'
+});
+
+Album.belongsTo(Artist, {
+  foreignKey: 'ArtistId'
+});
+
+Playlist.belongsToMany(Track, {
+  through: 'playlist_track',
+  foreignKey: 'PlaylistId',
+  timestamps: false
+});
+
+Track.belongsToMany(Playlist, {
+  through: 'playlist_track',
+  foreignKey: 'TrackId',
+  timestamps: false
+});
+
 app.get('/api/genres', function(request, response) {
   let connection = knex({
     client: 'sqlite3',
@@ -161,5 +181,51 @@ app.post('/api/tracks', function(request, response) {
     });
   });
 })
+
+app.get('/api/tracks/:id', function(request, response) {
+  let { id } = request.params;
+
+  Track.findByPk(id, {
+    include: [Playlist]
+  }).then((track) => {
+    if (track) {
+      response.json(track);
+    } else {
+      response.status(404).send();
+    }
+  });
+});
+
+app.patch('/api/tracks/:id', function(request, response) {
+
+  let {id} = request.params;
+
+  Track.findByPk(id).then((track) => {
+    
+    track.name = request.body.name;
+
+    if (request.body.milliseconds) {
+      track.milliseconds = request.body.milliseconds;
+    }
+    if (request.body.unitPrice) {
+      track.unitPrice = request.body.unitPrice;
+    }
+    track.save().then(() => {
+      response.json(track);
+    }, (validation) => {
+      response.status(422).json({
+        errors: validation.errors.map((error) => {
+          return {
+            attribute: error.path,
+            message: error.message
+          };
+        })
+      });
+    });
+  }, (notFound) => {
+    response.status(404).send();
+  });
+
+});
 // app.listen(8000);
 app.listen(process.env.PORT || 8000);
