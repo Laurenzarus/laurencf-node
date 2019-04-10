@@ -222,7 +222,7 @@ app.patch('/api/tracks/:id', function(request, response) {
         })
       });
     });
-  }, (notFound) => {
+  }).catch(() => {
     response.status(404).send();
   });
 
