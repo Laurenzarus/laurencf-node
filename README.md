@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.org/Laurenzarus/laurencf-node.svg?branch=master)](https://travis-ci.org/Laurenzarus/laurencf-node)
